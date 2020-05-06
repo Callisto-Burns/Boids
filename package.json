@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/Callisto-Burns/Boids#readme",
   "devDependencies": {
-    "electron": "^8.2.5"
+    "electron": "^8.2.5",
+    "three": "^0.116.1"
   }
 }
