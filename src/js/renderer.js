@@ -1,9 +1,11 @@
 const THREE = require('three')
-let scene, camera, renderer, cube
+let world, camera, renderer
 
 init()
+animate()
+
 function init() {
-    scene = new THREE.Scene()
+    world = new THREE.Scene()
     camera = new THREE.PerspectiveCamera(
         75,
         window.innerWidth / window.innerHeight,
@@ -14,29 +16,37 @@ function init() {
         antialias: true
     })
 
+    camera.position.z = 5
     renderer.setSize(window.innerWidth, window.innerHeight)
-
     document.body.appendChild(renderer.domElement)
 
-    geometry = new THREE.ConeGeometry(1, 3, 20, 20)
-    material = new THREE.MeshBasicMaterial({
-        color: 0x0000ff
-    })
-    cube = new THREE.Mesh(geometry, material)
-    scene.add(cube)
-
-    camera.position.z = 5
+    populateScene(world)
 }
 
-let scalar = 0
+/* Main animation frame */
 function animate() {
-
     requestAnimationFrame(animate)
-    cube.rotation.x += 0.01
-    cube.rotation.y += 0.05
-    cube.rotation.z += 0.06
-    
-    renderer.render(scene, camera)
+    var deltaTime = getDeltaTime() 
+
+    console.log('delta time: ' + deltaTime)
+    render()
 }
 
-animate()
+function render() {
+
+
+    renderer.render(world, camera)
+}
+
+/* Add scene elements */
+function populateScene(world) {
+
+}
+
+/** Returns delta time in milliseconds */
+var lastUpdate = Date.now()
+function getDeltaTime(){
+    var deltaTime = Date.now() - lastUpdate
+    lastUpdate = Date.now()
+    return deltaTime / 1000
+}
