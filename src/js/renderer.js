@@ -1,6 +1,6 @@
 const THREE = require('three')
 const Boid = require('./js/Boid')
-let world, camera, renderer, plane
+let world, camera, renderer, plane, boid
 
 init()
 animate()
@@ -22,6 +22,7 @@ function animate() {
 
 function render() {
     plane.rotation.y += 0.01
+    boid.update()
     renderer.render(world, camera)
 }
 
@@ -35,7 +36,7 @@ function initScene() {
     var gridHelper = new THREE.GridHelper(1000,1000)
     world.add(gridHelper)
     
-    var boid = new Boid(world, 0, 0)
+    boid = new Boid(world, 0, 0)
     world.add(boid)
 
     plane = new THREE.Mesh(
