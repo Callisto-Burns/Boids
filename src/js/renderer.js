@@ -36,6 +36,19 @@ function initScene() {
     
     var boid = new Boid(world, 0, 0)
     world.add(boid)
+<<<<<<< HEAD
+=======
+
+    plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(100,100,100,100),
+        new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            side: THREE.DoubleSide
+        })
+    )
+    plane.rotateX(Math.PI/2)
+    world.add(plane)
+>>>>>>> c5db1707688c492eed3093f94687fdcb9d8feea1
 }
 
 function initCamera(){

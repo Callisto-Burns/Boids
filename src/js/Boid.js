@@ -17,10 +17,11 @@ class Boid {
 
     constructor(scene, start_x, start_y) {
 
-        // initialize mesh with blue color
-        var geometry = new THREE.ConeGeometry(this.radius, this.height, this.radial_segment, this.height_segment)
-        var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } )
-        this.mesh = new THREE.Mesh(geometry, material)
+        // initialize mesh with blue color 
+        this.mesh = new THREE.Mesh(
+            new THREE.ConeGeometry(this.radius, this.height, this.radial_segment, this.height_segment),
+            new THREE.MeshBasicMaterial( { color: 0x0000ff } )
+        )
         
         // place mesh on starting x and y, add to scene, and rotate on its side
         scene.add(this.mesh)
