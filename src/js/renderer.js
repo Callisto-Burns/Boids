@@ -38,7 +38,6 @@ function initScene() {
     var boid = new Boid(world, 0, 0)
     world.add(boid)
 
-
     plane = new THREE.Mesh(
         new THREE.PlaneGeometry(100,100,100,100),
         new THREE.MeshBasicMaterial({
