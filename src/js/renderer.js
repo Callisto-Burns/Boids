@@ -4,21 +4,18 @@ let world, camera, renderer, plane
 init()
 animate()
 
+/* Initialize */
 function init() {
-    
     
     initScene()
     initRenderer()
     initCamera()
-    
-
     
 }
 
 /* Main animation loop */
 function animate() {
     requestAnimationFrame(animate)
-
     render()
 }
 
@@ -27,8 +24,8 @@ function render() {
     renderer.render(world, camera)
 }
 
-/* Add scene elements */
 function initScene() {
+
     world = new THREE.Scene()
     var axesHelper = new THREE.AxesHelper(100)
     world.add(axesHelper)
@@ -38,12 +35,13 @@ function initScene() {
     world.add(directionalLight)
 
     plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(10,10),
+        new THREE.PlaneGeometry(100,100,100,100),
         new THREE.MeshBasicMaterial({
             color: 0xffff00,
             side: THREE.DoubleSide
         })
     )
+    plane.rotateX(Math.PI/2)
     world.add(plane)
 }
 
