@@ -1,4 +1,5 @@
 const THREE = require('three')
+const Boid = require('./js/Boid')
 let world, camera, renderer
 
 init()
@@ -43,8 +44,10 @@ function render(deltaTime) {
 function populateScene(world) {
     var axesHelper = new THREE.AxesHelper(100)
     world.add(axesHelper)
-    var gridHelper = new THREE.GridHelper(1000,1000)
-    world.add(gridHelper)
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
     world.add(directionalLight)
+    
+    var boid = new Boid(world, 0, 0)
+    world.add(boid)
+
 }
