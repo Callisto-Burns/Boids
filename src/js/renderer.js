@@ -33,21 +33,11 @@ function initScene() {
     world.add(axesHelper)
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
     world.add(directionalLight)
-    var gridHelper = new THREE.GridHelper(1000,1000)
+    var gridHelper = new THREE.GridHelper(10000,10000)
     world.add(gridHelper)
     
     boid = new Boid(world, 0, 0)
     world.add(boid)
-
-    plane = new THREE.Mesh(
-        new THREE.PlaneGeometry(100,100,100,100),
-        new THREE.MeshBasicMaterial({
-            color: 0xffff00,
-            side: THREE.DoubleSide
-        })
-    )
-    plane.rotateX(Math.PI/2)
-    world.add(plane)
 }
 
 function initCamera(){
