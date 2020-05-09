@@ -1,10 +1,6 @@
 const THREE = require('three')
-<<<<<<< HEAD
 const Boid = require('./js/Boid')
-let world, camera, renderer
-=======
 let world, camera, renderer, plane
->>>>>>> 4869e8389cb383379d1d529dddae147030fb251b
 
 init()
 animate()
@@ -36,12 +32,9 @@ function initScene() {
     world.add(axesHelper)
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
     world.add(directionalLight)
-<<<<<<< HEAD
     
     var boid = new Boid(world, 0, 0)
     world.add(boid)
-
-=======
 
     plane = new THREE.Mesh(
         new THREE.PlaneGeometry(100,100,100,100),
@@ -70,5 +63,4 @@ function initRenderer(){
     })
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
->>>>>>> 4869e8389cb383379d1d529dddae147030fb251b
 }
