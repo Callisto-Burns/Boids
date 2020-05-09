@@ -1,50 +1,66 @@
 const THREE = require('three')
-let world, camera, renderer
+let world, camera, renderer, plane
 
 init()
 animate()
 
 function init() {
-    world = new THREE.Scene()
-    camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    )
-    renderer = new THREE.WebGLRenderer({
-        antialias: true
-    })
+    
+    
+    initScene()
+    initRenderer()
+    initCamera()
+    
 
-    camera.position.set(30,30,100)
-    renderer.setSize(window.innerWidth, window.innerHeight)
-    document.body.appendChild(renderer.domElement)
-
-    populateScene(world)
     
 }
 
 /* Main animation loop */
-var lastUpdate = Date.now()
 function animate() {
     requestAnimationFrame(animate)
-    var deltaTime = Date.now() - lastUpdate
-    lastUpdate = Date.now()
 
-    render(deltaTime)
+    render()
 }
 
-function render(deltaTime) {
-
+function render() {
+    plane.rotation.y += 0.01
     renderer.render(world, camera)
 }
 
 /* Add scene elements */
-function populateScene(world) {
+function initScene() {
+    world = new THREE.Scene()
     var axesHelper = new THREE.AxesHelper(100)
     world.add(axesHelper)
     var gridHelper = new THREE.GridHelper(1000,1000)
     world.add(gridHelper)
     var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
     world.add(directionalLight)
+
+    plane = new THREE.Mesh(
+        new THREE.PlaneGeometry(10,10),
+        new THREE.MeshBasicMaterial({
+            color: 0xffff00,
+            side: THREE.DoubleSide
+        })
+    )
+    world.add(plane)
+}
+
+function initCamera(){
+    camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+    )
+    camera.position.set(30,30,100)
+}
+
+function initRenderer(){
+    renderer = new THREE.WebGLRenderer({
+        antialias: true
+    })
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    document.body.appendChild(renderer.domElement)
 }
