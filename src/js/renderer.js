@@ -16,37 +16,35 @@ function init() {
         antialias: true
     })
 
-    camera.position.z = 5
+    camera.position.set(30,30,100)
     renderer.setSize(window.innerWidth, window.innerHeight)
     document.body.appendChild(renderer.domElement)
 
     populateScene(world)
+    
 }
 
-/* Main animation frame */
+/* Main animation loop */
+var lastUpdate = Date.now()
 function animate() {
     requestAnimationFrame(animate)
-    var deltaTime = getDeltaTime() 
+    var deltaTime = Date.now() - lastUpdate
+    lastUpdate = Date.now()
 
-    console.log('delta time: ' + deltaTime)
-    render()
+    render(deltaTime)
 }
 
-function render() {
-
+function render(deltaTime) {
 
     renderer.render(world, camera)
 }
 
 /* Add scene elements */
 function populateScene(world) {
-
-}
-
-/** Returns delta time in milliseconds */
-var lastUpdate = Date.now()
-function getDeltaTime(){
-    var deltaTime = Date.now() - lastUpdate
-    lastUpdate = Date.now()
-    return deltaTime / 1000
+    var axesHelper = new THREE.AxesHelper(100)
+    world.add(axesHelper)
+    var gridHelper = new THREE.GridHelper(1000,1000)
+    world.add(gridHelper)
+    var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5)
+    world.add(directionalLight)
 }
