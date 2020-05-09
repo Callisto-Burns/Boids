@@ -27,9 +27,22 @@ var FlightControls = (object, domElement) => {
     var spherical = new Spherical()
     var target = new Vector3()
 
+    this.update = () => {
+        var targetPosition = new Vector3()
 
+        return function update(delta){
+            if (this.enabled === false) return
 
+            var actualMoveSpeed = delta * this.movementSpeed
 
+            
+
+        }
+    }
+
+    function contextmenu(event){
+        event.preventDefault()
+    }
 
     var _onMouseMove = bind(this, this._onMouseMove)
     var _onMouseDown = bind(this, this._onMouseDown)
