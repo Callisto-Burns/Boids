@@ -1,5 +1,5 @@
 const THREE = require('three')
-const Boid = require('Boid')
+const Boid = require('./js/Boid')
 let world, camera, renderer, plane
 
 init()
