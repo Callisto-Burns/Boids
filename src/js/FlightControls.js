@@ -27,28 +27,45 @@ var FlightControls = (object, domElement) => {
     var spherical = new Spherical()
     var target = new Vector3()
 
-    this.update = () => {
-        var targetPosition = new Vector3()
+    var isMouseDown = false
 
-        return function update(delta){
-            if (this.enabled === false) return
-
-            var actualMoveSpeed = delta * this.movementSpeed
-
-            
-
+    function _onMouseMove(){
+        if(isMouseDown){
+            // enable mouse to turn camera while left mouse down
+            console.log('Move')
         }
+    }
+
+    function _onMouseDown(){
+        console.log('Down')
+        isMouseDown = true
+    }
+
+    function _onMouseUp(){
+        console.log('Up')
+        isMouseDown = false
     }
 
     function contextmenu(event){
         event.preventDefault()
+        console.log('Context')
     }
 
-    var _onMouseMove = bind(this, this._onMouseMove)
-    var _onMouseDown = bind(this, this._onMouseDown)
-    var _onMouseUp = bind(this, this._onMouseUp)
-    var _onKeyDown = bind(this, this._onKeyDown)
-    var _onKeyUp = bind(this, this._onKeyUp)
+    function _onKeyDown(event){
+        console.log('KeyDown')
+        
+
+    }
+
+    function _onKeyUp(event){
+        console.log("KeyUp")
+    }
+
+    //var _onMouseMove = bind(this, this._onMouseMove)
+    //var _onMouseDown = bind(this, this._onMouseDown)
+    //var _onMouseUp = bind(this, this._onMouseUp)
+    //var _onKeyDown = bind(this, this._onKeyDown)
+    //var _onKeyUp = bind(this, this._onKeyUp)
 
     this.domElement.addEventListener('contextmenu', contextmenu)
     this.domElement.addEventListener('mousemove', _onMouseMove)
@@ -56,23 +73,23 @@ var FlightControls = (object, domElement) => {
     this.domElement.addEventListener('mouseup', _onMouseUp)
 
     window.addEventListener('keydown', _onKeyDown)
-    window.domElement.addEventListener('keyup', _onKeyUp)
+    window.addEventListener('keyup', _onKeyUp)
 
-    function bind(scope, fn) {
+    /*function bind(scope, fn) {
         return function() {
             fn.apply(scope, arguments)
         }
-    }
-
+    }*/
+    /*
     function setOrientation(controls){
         var quaternion = controls.object.quaternion
         lookDirection.set(0, 0, -1).applyQuaternion(quaternion)
         lat = 90 - MathUtils.radToDeg(spherical.phi)
         lon = MathUtils.radToDeg(spherical.theta)
-    }
+    }*/
 
-    this.handleResize()
-    setOrientation(this)
+    //this.handleResize()
+    //setOrientation(this)
 }
 
-export {FlightControls}
+module.exports = FlightControls

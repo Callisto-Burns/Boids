@@ -1,6 +1,7 @@
 const THREE = require('three')
 const Boid = require('./js/Boid')
-let world, camera, renderer
+const FlightControls = require('./js/FlightControls')
+let world, camera, renderer, controls
 
 init()
 animate()
@@ -11,6 +12,8 @@ function init() {
     initScene()
     initRenderer()
     initCamera()
+
+    controls = FlightControls(camera, renderer.domElement)
     
 }
 
@@ -46,6 +49,7 @@ function initCamera(){
         1000
     )
     camera.position.set(30,30,100)
+
 }
 
 function initRenderer(){
