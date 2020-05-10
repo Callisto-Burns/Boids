@@ -21,7 +21,6 @@ function animate() {
 }
 
 function render() {
-    plane.rotation.y += 0.01
     boid.update()
     renderer.render(world, camera)
 }
