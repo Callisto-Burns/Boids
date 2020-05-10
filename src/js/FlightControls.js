@@ -27,6 +27,10 @@ var FlightControls = (object, domElement) => {
     var spherical = new Spherical()
     var target = new Vector3()
 
+    var movementState = {forward: 0, back: 0, left: 0, right: 0}
+    var velocity = new Vector3(0,0,0)
+    var movementAxes = new Vector3(0,0,0)
+
     var isMouseDown = false
 
     function _onMouseMove(){
@@ -53,12 +57,79 @@ var FlightControls = (object, domElement) => {
 
     function _onKeyDown(event){
         console.log('KeyDown')
-        
-
+        switch (event.keyCode){
+            case 16: /* Shift */
+                // Move faster
+                break
+            case 87: /* W */ 
+                movementState.forward = 1
+                break
+            case 83: /* S */
+                movementState.back = 1
+                break
+            case 65: /* A */ 
+                movementState.left = 1
+                break
+            case 68: /* D */
+                movementState.right = 1
+                break
+            case 38: /* Up */ 
+                movementState.forward = 1
+                break
+            case 40: /* Down */
+                movementState.back = 1
+                break
+            case 37: /* Left */ 
+                movementState.left = 1
+                break
+            case 39: /* Right */
+                movementState.right = 1
+                break
+        }   
+        console.log('(' + movementAxes.x + ',' + movementAxes.y + ',' + movementAxes.z + ')')
+        updatePosition()
     }
 
     function _onKeyUp(event){
         console.log("KeyUp")
+        switch (event.keyCode){
+            case 16: /* Shift */
+                // Move faster
+                break
+            case 87: /* W */ 
+                movementState.forward = 0
+                break
+            case 83: /* S */
+                movementState.back = 0
+                break
+            case 65: /* A */ 
+                movementState.left = 0
+                break
+            case 68: /* D */
+                movementState.right = 0
+                break
+            case 38: /* Up */ 
+                movementState.forward = 0
+                break
+            case 40: /* Down */
+                movementState.back = 0
+                break
+            case 37: /* Left */ 
+                movementState.left = 0
+                break
+            case 39: /* Right */
+                movementState.right = 0
+                break
+        }   
+        console.log('(' + movementAxes.x + ',' + movementAxes.y + ',' + movementAxes.z + ')')
+        updatePosition()
+    }
+
+    function updatePosition(){
+        movementAxes.z = movementState.back - movementState.forward
+        movementAxes.x = movementState.right - movementState.left
+        object.position.z += movementAxes.z * movementSpeed
+        object.position.x += movementAxes.x * movementSpeed
     }
 
     //var _onMouseMove = bind(this, this._onMouseMove)
