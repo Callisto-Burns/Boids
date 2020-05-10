@@ -38,7 +38,7 @@ class Boid {
     }
 
     orientVector() {
-        this.mesh.rotation.z = Math.PI/2 - Math.atan2(this.velocity.y, this.velocity.x)
+        this.mesh.rotation.z = Math.atan2(this.velocity.y, this.velocity.x) - Math.PI / 2
     }
 
     addBoid(byoid) {
@@ -51,7 +51,7 @@ class Boid {
 
     updateNearbyoids() {
         nearbyoids = []
-        
+
     }
 
     rule1() {
