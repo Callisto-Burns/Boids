@@ -1,7 +1,11 @@
 const THREE = require('three')
 const Boid = require('./js/Boid')
+<<<<<<< HEAD
 const FlightControls = require('./js/FlightControls')
 let world, camera, renderer, controls
+=======
+let world, camera, renderer, plane, boid
+>>>>>>> 093b6647a06250dec4c71ca22e0f21323ccadd62
 
 init()
 animate()
@@ -24,6 +28,7 @@ function animate() {
 }
 
 function render() {
+    boid.update()
     renderer.render(world, camera)
 }
 
@@ -37,7 +42,7 @@ function initScene() {
     var gridHelper = new THREE.GridHelper(10000,10000)
     world.add(gridHelper)
     
-    var boid = new Boid(world, 0, 0)
+    boid = new Boid(world, 0, 0)
     world.add(boid)
 }
 
