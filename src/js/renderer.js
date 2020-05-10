@@ -1,11 +1,7 @@
 const THREE = require('three')
 const Boid = require('./js/Boid')
-<<<<<<< HEAD
 const FlightControls = require('./js/FlightControls')
-let world, camera, renderer, controls
-=======
-let world, camera, renderer, plane, boid
->>>>>>> 093b6647a06250dec4c71ca22e0f21323ccadd62
+let world, camera, renderer, controls, boid
 
 init()
 animate()
