@@ -7,7 +7,7 @@ class Boid {
     height = 10
     radial_segment = 20
     height_segment = 2
-    scale_initial_velocity = 1
+    scale_initial_velocity = 1.0
 
     // attributes
     mesh = null
@@ -28,13 +28,18 @@ class Boid {
         this.mesh.position.y = start_y
 
         // initialize random velocity and orient shape in direction of travel
-        this.velocity = new THREE.Vector3(Math.random()*this.scale_initial_velocity, Math.random()*this.scale_initial_velocity, 0)
+        this.velocity = new THREE.Vector3(
+            Math.random()*this.scale_initial_velocity - this.scale_initial_velocity / 2, 
+            Math.random()*this.scale_initial_velocity - this.scale_initial_velocity / 2, 
+            0
+        )
         this.orientVector()
 
     }
 
     orientVector() {
-        this.mesh.rotation.z = -(Math.atan2(this.velocity.x, this.velocity.y))
+        this.mesh.rotation.z = Math.PI/2 - Math.atan2(this.velocity.y, this.velocity.x)
+        console.log(this.mesh.rotation.z + " == " + Math.atan2(this.velocity.y, this.velocity.x) + ", used: x: " + this.velocity.x + " and y: " + this.velocity.y)
     }
 
     addBoid(byoid) {
@@ -73,6 +78,6 @@ class Boid {
         var v3 = this.rule3()
 
         this.mesh.position.x += this.velocity.x
-        this.mesh.position.y += this.velocity.z
+        this.mesh.position.y += this.velocity.y
     }
 } module.exports = Boid
