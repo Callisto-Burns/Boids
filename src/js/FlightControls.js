@@ -2,7 +2,7 @@
 const THREE = require('three')
 const {Vector3, Quaternion, Spherical, MathUtils} = THREE
 
-var FlightControls = (object, domElement) => {
+var FlightControls = function (object, domElement) {
 
     if (domElement === undefined){
         console.warn('FlightControls: The second parameter "domElement" is now mandatory')
@@ -16,9 +16,9 @@ var FlightControls = (object, domElement) => {
 
     // API
 
-    this.movementSpeed = 1.0
+    this.movementSpeed = 60
     this.lookSpeed = 0.005
-
+    
     // Private Variables
     var lat = 0
     var lon = 0
@@ -27,9 +27,9 @@ var FlightControls = (object, domElement) => {
     var spherical = new Spherical()
     var target = new Vector3()
 
-    var movementState = {forward: 0, back: 0, left: 0, right: 0}
+    var movementState = {forward: 0, back: 0, left: 0, right: 0, up: 0, down: 0}
     var velocity = new Vector3(0,0,0)
-    var movementAxes = new Vector3(0,0,0)
+    var movementDirection = new Vector3(0,0,0)
 
     var isMouseDown = false
 
@@ -58,8 +58,11 @@ var FlightControls = (object, domElement) => {
     function _onKeyDown(event){
         console.log('KeyDown')
         switch (event.keyCode){
+            case 32: /* Space */
+                movementState.up = 1
+                break
             case 16: /* Shift */
-                // Move faster
+                movementState.down = 1
                 break
             case 87: /* W */ 
                 movementState.forward = 1
@@ -86,15 +89,18 @@ var FlightControls = (object, domElement) => {
                 movementState.right = 1
                 break
         }   
-        console.log('(' + movementAxes.x + ',' + movementAxes.y + ',' + movementAxes.z + ')')
-        updatePosition()
+        console.log('(' + movementDirection.x + ',' + movementDirection.y + ',' + movementDirection.z + ')')
+        updateMovementVector()
     }
 
     function _onKeyUp(event){
         console.log("KeyUp")
         switch (event.keyCode){
+            case 32: /* Space */
+                movementState.up = 0
+                break
             case 16: /* Shift */
-                // Move faster
+                movementState.down = 0
                 break
             case 87: /* W */ 
                 movementState.forward = 0
@@ -121,22 +127,22 @@ var FlightControls = (object, domElement) => {
                 movementState.right = 0
                 break
         }   
-        console.log('(' + movementAxes.x + ',' + movementAxes.y + ',' + movementAxes.z + ')')
-        updatePosition()
+        console.log('(' + movementDirection.x + ',' + movementDirection.y + ',' + movementDirection.z + ')')
+        updateMovementVector()
     }
 
-    function updatePosition(){
-        movementAxes.z = movementState.back - movementState.forward
-        movementAxes.x = movementState.right - movementState.left
-        object.position.z += movementAxes.z * movementSpeed
-        object.position.x += movementAxes.x * movementSpeed
+    function updateMovementVector(){
+        movementDirection.z = movementState.back - movementState.forward
+        movementDirection.y = movementState.up - movementState.down
+        movementDirection.x = movementState.right - movementState.left
+        movementDirection.normalize()
     }
 
-    //var _onMouseMove = bind(this, this._onMouseMove)
-    //var _onMouseDown = bind(this, this._onMouseDown)
-    //var _onMouseUp = bind(this, this._onMouseUp)
-    //var _onKeyDown = bind(this, this._onKeyDown)
-    //var _onKeyUp = bind(this, this._onKeyUp)
+    this.update = function (delta) {
+        this.object.translateX(movementDirection.x * this.movementSpeed * delta)
+        this.object.translateY(movementDirection.y * this.movementSpeed * delta)
+        this.object.translateZ(movementDirection.z * this.movementSpeed * delta)
+    }
 
     this.domElement.addEventListener('contextmenu', contextmenu)
     this.domElement.addEventListener('mousemove', _onMouseMove)
@@ -145,6 +151,12 @@ var FlightControls = (object, domElement) => {
 
     window.addEventListener('keydown', _onKeyDown)
     window.addEventListener('keyup', _onKeyUp)
+
+    
+}
+
+module.exports = FlightControls
+
 
     /*function bind(scope, fn) {
         return function() {
@@ -161,6 +173,10 @@ var FlightControls = (object, domElement) => {
 
     //this.handleResize()
     //setOrientation(this)
-}
 
-module.exports = FlightControls
+    //var _onMouseMove = bind(this, this._onMouseMove)
+    //var _onMouseDown = bind(this, this._onMouseDown)
+    //var _onMouseUp = bind(this, this._onMouseUp)
+    //var _onKeyDown = bind(this, this._onKeyDown)
+    //var _onKeyUp = bind(this, this._onKeyUp)
+    

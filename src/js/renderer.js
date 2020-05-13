@@ -2,6 +2,7 @@ const THREE = require('three')
 const Boid = require('./js/Boid')
 const FlightControls = require('./js/FlightControls')
 let world, camera, renderer, controls, boid
+let clock = new THREE.Clock()
 
 init()
 animate()
@@ -13,7 +14,7 @@ function init() {
     initRenderer()
     initCamera()
 
-    controls = FlightControls(camera, renderer.domElement)
+    controls = new FlightControls(camera, renderer.domElement)
     
 }
 
@@ -24,8 +25,10 @@ function animate() {
 }
 
 function render() {
+    var delta = clock.getDelta()
     boid.update()
     renderer.render(world, camera)
+    controls.update(delta)
 }
 
 function initScene() {
