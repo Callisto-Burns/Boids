@@ -16,7 +16,8 @@ var FlightControls = function (object, domElement) {
 
     // API
 
-    this.movementSpeed = 60
+    this.movementSpeed = 30
+    this.sprintMultiplier = 1.1
     this.lookSpeed = 0.005
     
     // Private Variables
@@ -32,6 +33,7 @@ var FlightControls = function (object, domElement) {
     var movementDirection = new Vector3(0,0,0)
 
     var isMouseDown = false
+    var isSprint = false
 
     function _onMouseMove(){
         if(isMouseDown){
@@ -58,11 +60,11 @@ var FlightControls = function (object, domElement) {
     function _onKeyDown(event){
         console.log('KeyDown')
         switch (event.keyCode){
+            case 16: /* Shift */
+                isSprint = true
+                break
             case 32: /* Space */
                 movementState.up = 1
-                break
-            case 16: /* Shift */
-                movementState.down = 1
                 break
             case 87: /* W */ 
                 movementState.forward = 1
@@ -96,11 +98,11 @@ var FlightControls = function (object, domElement) {
     function _onKeyUp(event){
         console.log("KeyUp")
         switch (event.keyCode){
+            case 16: /* Shift */
+                isSprint = false
+                break
             case 32: /* Space */
                 movementState.up = 0
-                break
-            case 16: /* Shift */
-                movementState.down = 0
                 break
             case 87: /* W */ 
                 movementState.forward = 0
@@ -139,9 +141,18 @@ var FlightControls = function (object, domElement) {
     }
 
     this.update = function (delta) {
-        this.object.translateX(movementDirection.x * this.movementSpeed * delta)
-        this.object.translateY(movementDirection.y * this.movementSpeed * delta)
-        this.object.translateZ(movementDirection.z * this.movementSpeed * delta)
+        this.object.translateX(movementDirection.x * this.movementSpeed * delta * sprintMultiplier(isSprint))
+        this.object.translateY(movementDirection.y * this.movementSpeed * delta * sprintMultiplier(isSprint))
+        this.object.translateZ(movementDirection.z * this.movementSpeed * delta * sprintMultiplier(isSprint))
+    }
+
+    function sprintMultiplier(isSprint){
+        if (isSprint){
+            return this.sprintMultiplier
+        } 
+        else {
+            return 1
+        }
     }
 
     this.domElement.addEventListener('contextmenu', contextmenu)
