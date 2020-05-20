@@ -1,82 +1,55 @@
 const THREE = require('three')
+let num_rays = 10, sight_radius = 10, body_radius = 5, body_height = 10, 
+    radial_segment = 20, height_segment = 2, v_scalar = 10, sphere_segment = 16
 
-class Boid {
+var Boid = function(...args){
+    THREE.Object3D.apply(this, [])
+    // attach the scene as a property
+    this.scene = args[0]
 
-    // constants
-    radius = 5
-    height = 10
-    radial_segment = 20
-    height_segment = 2
-    scale_initial_velocity = 1.0
+    // make mesh
+    this.mesh = new THREE.Mesh(
+        new THREE.ConeGeometry(body_radius, body_height, radial_segment, height_segment),
+        new THREE.MeshBasicMaterial( { color: 0x0000ff } )
+    )
+    this.add(this.mesh)
+    this.scene.add(this.mesh)
+    this.mesh.position.x = args[1]
+    this.mesh.position.y = args[2]
+    this.mesh.position.z = args[3]
+    
 
-    // attributes
-    mesh = null
-    velocity = null
-    nearbyoids = []
+    // make surrounding sphere, make it invisible
+    this.sphere = new THREE.Mesh(
+        new THREE.SphereGeometry(sight_radius, sphere_segment, 2),
+        new THREE.MeshBasicMaterial( { color: 0x0000ff } )
+    )
+    this.add(this.sphere)
+    this.sphere.visible = false;
+    this.scene.add(this.sphere)
 
-    constructor(scene, start_x, start_y) {
+    // intitialize nearbyoids array as empty
+    this.nearbyoids = []
 
-        // initialize mesh with blue color 
-        this.mesh = new THREE.Mesh(
-            new THREE.ConeGeometry(this.radius, this.height, this.radial_segment, this.height_segment),
-            new THREE.MeshBasicMaterial( { color: 0x0000ff } )
-        )
-        
-        // place mesh on starting x and y, add to scene, and rotate on its side
-        scene.add(this.mesh)
-        this.mesh.position.x = start_x
-        this.mesh.position.y = start_y
+    // intitialize random velocity
+    this.velocity = new THREE.Vector3(
+        Math.random() * v_scalar - v_scalar / 2, 
+        Math.random() * v_scalar - v_scalar / 2, 
+        0
+    )
+    this.orientVector()
+}
 
-        // initialize random velocity and orient shape in direction of travel
-        this.velocity = new THREE.Vector3(
-            Math.random()*this.scale_initial_velocity - this.scale_initial_velocity / 2, 
-            Math.random()*this.scale_initial_velocity - this.scale_initial_velocity / 2, 
-            0
-        )
-        this.orientVector()
+Boid.prototype = Object.create(THREE.Object3D.prototype)
 
-    }
+Boid.prototype.constructor = Boid
 
-    orientVector() {
-        this.mesh.rotation.z = Math.atan2(this.velocity.y, this.velocity.x) - Math.PI / 2
-    }
+Boid.prototype.update = function(delta){
+    this.mesh.position.addScaledVector(this.velocity, delta * v_scalar)
+}
 
-    addBoid(byoid) {
-        this.nearbyoids.push(byoid)
-    }
+Boid.prototype.orientVector = function(){
+    this.mesh.rotation.z = Math.atan2(this.velocity.y, this.velocity.x) - Math.PI / 2
+}
 
-    setNearbyoids(byoids) {
-        this.nearbyoids = byoids
-    }
-
-    updateNearbyoids() {
-        nearbyoids = []
-
-    }
-
-    rule1() {
-        
-        return new THREE.Vector3()
-    }
-
-    rule2() {
-
-        return new THREE.Vector3()
-    }
-
-    rule3() {
-
-        return new THREE.Vector3()
-    }
-
-    update() {
-        
-        // update velocity with rules
-        var v1 = this.rule1()
-        var v2 = this.rule2()
-        var v3 = this.rule3()
-
-        this.mesh.position.x += this.velocity.x
-        this.mesh.position.y += this.velocity.y
-    }
-} module.exports = Boid
+module.exports = Boid

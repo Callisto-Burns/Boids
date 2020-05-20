@@ -26,8 +26,8 @@ function animate() {
 
 function render() {
     var delta = clock.getDelta()
-    boid.update()
     renderer.render(world, camera)
+    boid.update(delta)
     controls.update(delta)
 }
 
@@ -41,7 +41,7 @@ function initScene() {
     var gridHelper = new THREE.GridHelper(10000,10000)
     world.add(gridHelper)
     
-    boid = new Boid(world, 0, 0)
+    boid = new Boid(world, 0, 0, 0)
     world.add(boid)
 }
 
