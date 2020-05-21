@@ -2,7 +2,7 @@ const THREE = require('three')
 
 // general constants
 let num_rays = 10, sight_radius = 10, body_radius = 5, body_height = 10, 
-    radial_segment = 20, height_segment = 2, v_scalar = 1, sphere_segment = 16
+    radial_segment = 20, height_segment = 2, v_scalar = 3, sphere_segment = 16
 
 var Boid = function(...args){
     THREE.Object3D.apply(this, [])
@@ -50,17 +50,20 @@ Boid.prototype = Object.create(THREE.Object3D.prototype)
 Boid.prototype.constructor = Boid
 
 /** constants for updating velocities and positions **/
-let d_v_scalar = .001, p_v_scalar = .001, personal_space = .01
+let d_v_scalar = .125, p_v_scalar = .1, personal_space = 6, speed_limit = 1
 
 // if boid is too close to nearbyoids, then move it back to the limit of the distance, return a difference vector
 Boid.prototype.rule1 = function(){
 
+    if (this.nearbyoids.length == 0){
+        return new THREE.Vector3(0,0,0)
+    }
     var ret_vec = new THREE.Vector3(0,0,0)
+    var copy_position = new THREE.Vector3(0,0,0)
+    copy_position.copy(this.mesh.position)
     for (i = 0; i < this.nearbyoids.length; i++) {
         if (Math.abs(this.nearbyoids[i].mesh.position.distanceTo(this.mesh.position)) < personal_space){
-            ret_vec.add(
-                new THREE.Vector3(this.mesh.position.x, this.mesh.position.y, this.mesh.position.z).addScaledVector(this.nearbyoids[i].mesh.position, -1)
-                )
+            ret_vec.add(copy_position.addScaledVector(this.nearbyoids[i].mesh.position, -1))
         }
     }
 
@@ -70,11 +73,17 @@ Boid.prototype.rule1 = function(){
 // averages difference of velocity to nearbyoids velocities, returning a difference vector 
 Boid.prototype.rule2 = function(){
 
-    var ret_vec = new THREE.Vector3(0,0,0)
-    for (i = 0; i < this.nearbyoids.length; i++){
-        ret_vec.add(this.nearbyoids[i].velocity.addScaledVector(this.velocity, -1))
+    if (this.nearbyoids.length == 0){
+        return new THREE.Vector3(0,0,0)
     }
-    ret_vec.divideScalar(this.nearbyoids.length * d_v_scalar)
+    var ret_vec = new THREE.Vector3(0,0,0)
+    var n = this.nearbyoids.length
+    var copy_nearbyoid_position = new THREE.Vector3(0,0,0)
+    for (i = 0; i < this.nearbyoids.length; i++){
+        copy_nearbyoid_position.copy(this.nearbyoids[i].velocity)
+        ret_vec.add(copy_nearbyoid_position.addScaledVector(this.velocity, -1))
+    }
+    ret_vec.multiplyScalar(this.nearbyoids.length * (1/d_v_scalar))
 
     return ret_vec
 }
@@ -86,14 +95,29 @@ Boid.prototype.rule3 = function(){
         return new THREE.Vector3(0,0,0)
     }
     var ret_vec = new THREE.Vector3(0,0,0)
+    var n = this.nearbyoids.length
+    // sum up all the position vectors of this boid and the nearbyoids
+    ret_vec.add(this.mesh.position)
     for (i = 0; i < this.nearbyoids.length; i++){
         ret_vec.add(this.nearbyoids[i].mesh.position)
     }
-    ret_vec.divideScalar(this.nearbyoids.length)
+    // divide the ret_vec so it is an average position
+    ret_vec.divideScalar(n+1)
+    // the ret_vec should point towards the average position and be p_v_scalar*(difference vector b/w avg pos and this.pos)
     ret_vec.addScaledVector(this.mesh.position, -1)
     ret_vec.multiplyScalar(p_v_scalar)
     
     return ret_vec
+}
+
+// limits the speed of the boids
+Boid.prototype.rule4 = function(){
+
+    // uses length squared for efficiency fuck with me
+    if (this.velocity.lengthSq() > speed_limit * speed_limit){
+        this.velocity.setLength(speed_limit)
+        this.dif_vector.setLength(0)
+    }
 }
 
 Boid.prototype.differenceVector = function(){
@@ -102,8 +126,9 @@ Boid.prototype.differenceVector = function(){
 
     // add velocity changing rules to the difference vector
     dif_vec.add(this.rule1())
-    dif_vec.add(this.rule2())
+    //dif_vec.add(this.rule2())
     dif_vec.add(this.rule3())
+    this.rule4()
 
     return dif_vec
 }
@@ -116,7 +141,7 @@ Boid.prototype.readyUpdate = function() {
 // actually updates the positions and velocity
 Boid.prototype.finalUpdate = function(delta){
     // update the velocity
-    this.velocity = this.velocity.add(this.dif_vector)
+    this.velocity = this.velocity.addScaledVector(this.dif_vector, delta * v_scalar)
 
     // update the position
     this.mesh.position.addScaledVector(this.velocity, delta * v_scalar)

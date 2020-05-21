@@ -34,6 +34,8 @@ function render() {
     boid1.finalUpdate(delta)
     boid2.finalUpdate(delta)
 
+    console.log(boid2.mesh.position)
+
     controls.update(delta)
 }
 
