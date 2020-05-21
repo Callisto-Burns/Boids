@@ -49,9 +49,9 @@ function initScene() {
     var gridHelper = new THREE.GridHelper(10000,10000)
     world.add(gridHelper)
     
-    boid1 = new Boid(world, 0, 0, 0)
-    boid2 = new Boid(world, 10, 0, 0)
-    boid3 = new Boid(world, 5, 10, 0)
+    boid1 = new Boid(world)
+    boid2 = new Boid(world)
+    boid3 = new Boid(world)
 
     boid1.addBoid(boid2)
     boid1.addBoid(boid3)
@@ -63,13 +63,16 @@ function initScene() {
 }
 
 function initCamera(){
-    camera = new THREE.PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
+    var window_scalar = 1/8
+    camera = new THREE.OrthographicCamera(
+        -window.innerWidth * window_scalar,
+        window.innerWidth * window_scalar,
+        window.innerHeight * window_scalar,
+        -window.innerHeight * window_scalar,
         0.1,
         1000
     )
-    camera.position.set(30,30,100)
+    camera.position.set(0,0,100)
 
 }
 

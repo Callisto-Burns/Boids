@@ -3,7 +3,7 @@ const THREE = require('three')
 // general constants
 let num_rays = 10, sight_radius = 10, body_radius = 5, body_height = 10, 
     radial_segment = 20, height_segment = 2, v_scalar = 3, sphere_segment = 16
-    init_box_length = 20
+    init_box_length = 40
 
 var Boid = function(...args){
     THREE.Object3D.apply(this, [])
@@ -17,8 +17,8 @@ var Boid = function(...args){
     )
     this.add(this.mesh)
     this.scene.add(this.mesh)
-    this.mesh.position.x = Math.random() * init_box_length
-    this.mesh.position.y = Math.random() * init_box_length
+    this.mesh.position.x = Math.random()*init_box_length - init_box_length/2
+    this.mesh.position.y = Math.random()*init_box_length - init_box_length/2
     this.mesh.position.z = 0
     
 
@@ -36,8 +36,8 @@ var Boid = function(...args){
 
     // initialize random velocity
     this.velocity = new THREE.Vector3(
-        Math.random() * v_scalar - v_scalar / 2, 
-        Math.random() * v_scalar - v_scalar / 2, 
+        Math.random()*v_scalar - v_scalar/2, 
+        Math.random()*v_scalar - v_scalar/2, 
         0
     )
     this.orientVector()
@@ -51,7 +51,7 @@ Boid.prototype = Object.create(THREE.Object3D.prototype)
 Boid.prototype.constructor = Boid
 
 /** constants for updating velocities and positions **/
-let d_v_scalar = .125, p_v_scalar = .05, personal_space = 6, speed_limit = 10
+let d_v_scalar = .125, p_v_scalar = .05, p_s_scalar = 0.5, personal_space = 10, speed_limit = 10, box_spacing_scalar = 30
 
 // if boid is too close to nearbyoids, then move it back to the limit of the distance, return a difference vector
 Boid.prototype.rule1 = function(){
@@ -67,6 +67,7 @@ Boid.prototype.rule1 = function(){
             ret_vec.add(copy_position.addScaledVector(this.nearbyoids[i].mesh.position, -1))
         }
     }
+    ret_vec.multiplyScalar(p_s_scalar)
 
     return ret_vec
 }
@@ -106,7 +107,8 @@ Boid.prototype.rule3 = function(){
     // divide the ret_vec so it is an average position
     ret_vec.divideScalar(n)
     // the ret_vec should point towards the average position and be p_v_scalar*(difference vector b/w avg pos and this.pos)
-    ret_vec.addScaledVector(this.mesh.position, -1 * p_v_scalar)
+    ret_vec.addScaledVector(this.mesh.position, -1)
+    ret_vec.multiplyScalar(p_v_scalar)
     
     return ret_vec
 }
@@ -117,8 +119,26 @@ Boid.prototype.rule4 = function(){
     // uses length squared for efficiency fuck with me
     if (this.velocity.lengthSq() > speed_limit * speed_limit){
         this.velocity.setLength(speed_limit)
-        this.dif_vector.setLength(0)
     }
+}
+
+Boid.prototype.rule5 = function(){
+
+    ret_vec = new THREE.Vector3(0,0,0)
+    if (this.mesh.position.x > 20){
+        ret_vec.x -= Math.abs(this.mesh.position.x-20) * box_spacing_scalar
+    }
+    if (this.mesh.position.x < -20){
+        ret_vec.x += Math.abs(this.mesh.position.x+20) * box_spacing_scalar
+    }
+    if (this.mesh.position.y > 20){
+        ret_vec.y -= Math.abs(this.mesh.position.y-20) * box_spacing_scalar
+    }
+    if (this.mesh.position.y < -20){
+        ret_vec.y += Math.abs(this.mesh.position.y+20) * box_spacing_scalar
+    }
+
+    return ret_vec
 }
 
 Boid.prototype.differenceVector = function(){
@@ -127,9 +147,10 @@ Boid.prototype.differenceVector = function(){
 
     // add velocity changing rules to the difference vector
     dif_vec.add(this.rule1())
-    //dif_vec.add(this.rule2())
+    dif_vec.add(this.rule2())
     dif_vec.add(this.rule3())
     this.rule4()
+    dif_vec.add(this.rule5())
 
     return dif_vec
 }
