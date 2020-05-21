@@ -3,6 +3,7 @@ const THREE = require('three')
 // general constants
 let num_rays = 10, sight_radius = 10, body_radius = 5, body_height = 10, 
     radial_segment = 20, height_segment = 2, v_scalar = 3, sphere_segment = 16
+    init_box_length = 20
 
 var Boid = function(...args){
     THREE.Object3D.apply(this, [])
@@ -16,9 +17,9 @@ var Boid = function(...args){
     )
     this.add(this.mesh)
     this.scene.add(this.mesh)
-    this.mesh.position.x = args[1]
-    this.mesh.position.y = args[2]
-    this.mesh.position.z = args[3]
+    this.mesh.position.x = Math.random() * init_box_length
+    this.mesh.position.y = Math.random() * init_box_length
+    this.mesh.position.z = 0
     
 
     // make surrounding sphere, make it invisible
@@ -50,7 +51,7 @@ Boid.prototype = Object.create(THREE.Object3D.prototype)
 Boid.prototype.constructor = Boid
 
 /** constants for updating velocities and positions **/
-let d_v_scalar = .125, p_v_scalar = .1, personal_space = 6, speed_limit = 1
+let d_v_scalar = .125, p_v_scalar = .05, personal_space = 6, speed_limit = 10
 
 // if boid is too close to nearbyoids, then move it back to the limit of the distance, return a difference vector
 Boid.prototype.rule1 = function(){
@@ -78,12 +79,14 @@ Boid.prototype.rule2 = function(){
     }
     var ret_vec = new THREE.Vector3(0,0,0)
     var n = this.nearbyoids.length
-    var copy_nearbyoid_position = new THREE.Vector3(0,0,0)
-    for (i = 0; i < this.nearbyoids.length; i++){
-        copy_nearbyoid_position.copy(this.nearbyoids[i].velocity)
-        ret_vec.add(copy_nearbyoid_position.addScaledVector(this.velocity, -1))
+    for (i = 0; i < n; i++){
+        ret_vec.add(this.nearbyoids[i].velocity)
     }
-    ret_vec.multiplyScalar(this.nearbyoids.length * (1/d_v_scalar))
+    // average the velocities of nearbyoids
+    ret_vec.divideScalar(n)
+    // ret_vec is now the difference between the average velocity and this.velocity multiplied by d_v_scalar
+    // so it changes to be more like the other velocities
+    ret_vec.addScaledVector(this.velocity, -1 * d_v_scalar)
 
     return ret_vec
 }
@@ -97,15 +100,13 @@ Boid.prototype.rule3 = function(){
     var ret_vec = new THREE.Vector3(0,0,0)
     var n = this.nearbyoids.length
     // sum up all the position vectors of this boid and the nearbyoids
-    ret_vec.add(this.mesh.position)
     for (i = 0; i < this.nearbyoids.length; i++){
         ret_vec.add(this.nearbyoids[i].mesh.position)
     }
     // divide the ret_vec so it is an average position
-    ret_vec.divideScalar(n+1)
+    ret_vec.divideScalar(n)
     // the ret_vec should point towards the average position and be p_v_scalar*(difference vector b/w avg pos and this.pos)
-    ret_vec.addScaledVector(this.mesh.position, -1)
-    ret_vec.multiplyScalar(p_v_scalar)
+    ret_vec.addScaledVector(this.mesh.position, -1 * p_v_scalar)
     
     return ret_vec
 }

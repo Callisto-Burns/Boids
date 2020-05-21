@@ -30,11 +30,11 @@ function render() {
 
     boid1.readyUpdate()
     boid2.readyUpdate()
+    boid3.readyUpdate()
 
     boid1.finalUpdate(delta)
     boid2.finalUpdate(delta)
-
-    console.log(boid2.mesh.position)
+    boid3.finalUpdate(delta)
 
     controls.update(delta)
 }
@@ -50,21 +50,16 @@ function initScene() {
     world.add(gridHelper)
     
     boid1 = new Boid(world, 0, 0, 0)
-    world.add(boid1)
-
     boid2 = new Boid(world, 10, 0, 0)
-    world.add(boid2)
+    boid3 = new Boid(world, 5, 10, 0)
 
     boid1.addBoid(boid2)
+    boid1.addBoid(boid3)
     boid2.addBoid(boid1)
-    
-    vel1 = new THREE.Vector3(1,1,0)
-    vel2 = new THREE.Vector3(-1,1,0)
+    boid2.addBoid(boid3)
+    boid3.addBoid(boid1)
+    boid3.addBoid(boid2)
 
-    boid1.setVelocity(vel1)
-    boid1.orientVector()
-    boid2.setVelocity(vel2)
-    boid2.orientVector()
 }
 
 function initCamera(){
