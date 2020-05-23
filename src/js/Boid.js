@@ -21,7 +21,6 @@ var Boid = function(...args){
     this.mesh.position.y = Math.random()*init_box_length - init_box_length/2
     this.mesh.position.z = 0
     
-
     // make surrounding sphere, make it invisible
     this.sphere = new THREE.Mesh(
         new THREE.SphereGeometry(sight_radius, sphere_segment, 2),

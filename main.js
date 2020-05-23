@@ -1,10 +1,9 @@
 global.__basedir = __dirname
 
 const electron = require('electron')
+const {app, BrowserWindow, Menu, MenuItem} = electron
 const url = require('url')
 const path = require('path')
-
-const {app, BrowserWindow} = electron
 
 let mainWindow
 
@@ -15,7 +14,8 @@ app.on('ready', ()=>{
         webPreferences: {
             nodeIntegration: true
         },
-        resizeable: false
+        resizeable: false,
+        
     })
 
     mainWindow.loadURL(url.format({
@@ -27,5 +27,33 @@ app.on('ready', ()=>{
     mainWindow.on('closed', () => {
         app.quit()
     })
+
+    const menu = Menu.buildFromTemplate(menuTemplate)
+    Menu.setApplicationMenu(menu)
 })
 
+const isMac = process.platform === 'darwin'
+const menuTemplate = [
+    //Mac appMenu
+    ...(isMac ? [{
+        label: app.name,
+        submenu: [
+            {role: 'quit'}
+        ]
+    }] : []),
+    //fileMenu
+    {
+        label: 'File',
+        submenu: [
+            isMac ? {role: 'close'} : {role: 'quit'}
+        ]
+    },
+    //viewMenu
+    {
+        label:'View',
+        submenu: [
+            {role: 'toggledevtools'}
+        ]
+    }
+
+]

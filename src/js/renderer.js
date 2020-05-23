@@ -3,6 +3,7 @@ const Boid = require('./js/Boid')
 const FlightControls = require('./js/FlightControls')
 let world, camera, renderer, controls, boid
 let clock = new THREE.Clock()
+const {Vector3, ArrowHelper} = THREE
 
 init()
 animate()
@@ -64,15 +65,14 @@ function initScene() {
 
 function initCamera(){
     var window_scalar = 1/8
-    camera = new THREE.OrthographicCamera(
-        -window.innerWidth * window_scalar,
-        window.innerWidth * window_scalar,
-        window.innerHeight * window_scalar,
-        -window.innerHeight * window_scalar,
+    camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth/window.innerHeight,
         0.1,
-        1000
+        2000
     )
-    camera.position.set(0,0,100)
+    camera.position.set(0,10,100)
+    //camera.rotateY(Math.PI/4)
 
 }
 

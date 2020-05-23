@@ -17,7 +17,7 @@ var FlightControls = function (object, domElement) {
     // API
 
     this.movementSpeed = 30
-    this.sprintMultiplier = 2.0
+    this.sprintMultiplier = 3.0
     this.lookSpeed = 0.005
     
     // Private Variables
@@ -27,34 +27,60 @@ var FlightControls = function (object, domElement) {
     var lookDirection = new Vector3()
     var spherical = new Spherical()
     var target = new Vector3()
+    var quaternion = new Quaternion()
+    var mouseX = 0
+    var mouseY = 0
 
     var movementState = {forward: 0, back: 0, left: 0, right: 0, up: 0, down: 0}
-    var velocity = new Vector3(0,0,0)
     var movementDirection = new Vector3(0,0,0)
 
     var isMouseDown = false
     var isSprint = false
 
-    function _onMouseMove(){
+    var mouseX
+    var mouseY
+
+    var viewHalfX
+    var viewHalfY
+
+    this.handleResize = function() {
+        if (this.domElement === document) {
+            viewHalfX = window.innerWidth / 2
+            viewHalfY = window.innerHeight / 2
+        }
+        else {
+            viewHalfX = this.domElement.offsetWidth / 2
+            viewHalfY = this.domElement.offsetHeight / 2
+        }
+    }
+    this.handleResize()
+
+    this.onMouseMove = function (event){
         if(isMouseDown){
-            // enable mouse to turn camera while left mouse down
-            console.log('Move')
+            if (this.domElement === document) {
+                mouseX = event.pageX - viewHalfX
+                mouseY = event.pageY - viewHalfY
+            }
+            else {
+                mouseX = event.pageX - this.domElement.offsetLeft - viewHalfX
+                mouseY = event.pageY - this.domElement.offsetRight - viewHalfY
+            }
         }
     }
 
-    function _onMouseDown(){
+    this.onMouseDown = function(){
         isMouseDown = true
     }
 
-    function _onMouseUp(){
+    this.onMouseUp = function(){
         isMouseDown = false
     }
 
-    function contextmenu(event){
+    var contextmenu = function(event){
         event.preventDefault()
     }
 
-    function _onKeyDown(event){
+    this.onKeyDown = function (event){
         switch (event.keyCode){
             case 16: /* Shift */
                 isSprint = true
@@ -62,6 +88,9 @@ var FlightControls = function (object, domElement) {
             case 32: /* Space */
                 movementState.up = 1
                 break
+            case 17: /* Control */
+                movementState.down = 1
+                break
             case 87: /* W */ 
                 movementState.forward = 1
                 break
@@ -87,11 +116,10 @@ var FlightControls = function (object, domElement) {
                 movementState.right = 1
                 break
         }   
-        //console.log('(' + movementDirection.x + ',' + movementDirection.y + ',' + movementDirection.z + ')')
-        updateMovementVector()
+        this.updateMovementVector()
     }
 
-    function _onKeyUp(event){
+    this.onKeyUp = function(event){
         switch (event.keyCode){
             case 16: /* Shift */
                 isSprint = false
@@ -99,6 +127,9 @@ var FlightControls = function (object, domElement) {
             case 32: /* Space */
                 movementState.up = 0
                 break
+            case 17: /* Control */
+                movementState.down = 0
+                break
             case 87: /* W */ 
                 movementState.forward = 0
                 break
@@ -124,11 +155,10 @@ var FlightControls = function (object, domElement) {
                 movementState.right = 0
                 break
         }   
-        //console.log('(' + movementDirection.x + ',' + movementDirection.y + ',' + movementDirection.z + ')')
-        updateMovementVector()
+        this.updateMovementVector()
     }
 
-    function updateMovementVector(){
+    this.updateMovementVector = function(){
         movementDirection.z = movementState.back - movementState.forward
         movementDirection.y = movementState.up - movementState.down
         movementDirection.x = movementState.right - movementState.left
@@ -136,20 +166,52 @@ var FlightControls = function (object, domElement) {
     }
 
     this.update = function (delta) {
-        this.object.translateX(movementDirection.x * this.movementSpeed * delta * sprintMult(isSprint, this.sprintMultiplier))
-        this.object.translateY(movementDirection.y * this.movementSpeed * delta * sprintMult(isSprint, this.sprintMultiplier))
-        this.object.translateZ(movementDirection.z * this.movementSpeed * delta * sprintMult(isSprint, this.sprintMultiplier))
+
+        if (isMouseDown) {
+            /* Translate camera along local z axis */
+            this.object.translateZ(movementDirection.z * this.movementSpeed * delta * this.sprintMult(isSprint))
+        }
+        else {
+            /* Translate camera along axis formed by projecting projecting camera local -z (facing direction) onto global xz plane */
+            var cameraWorldDirection = this.object.getWorldDirection() //For some reason this vector is just <0,0,-1> even though camera is rotated
+            cameraWorldDirection.applyQuaternion(this.object.quaternion)
+            var horizontalCameraDirection = new Vector3(cameraWorldDirection.x, 0, cameraWorldDirection.z)
+            var horizontalTranslation = -movementDirection.z * this.movementSpeed * delta * this.sprintMult(isSprint)
+            this.object.translateOnAxis(horizontalCameraDirection, horizontalTranslation)
+        }
+        /* Translate camera along local x axis */
+        this.object.translateX(movementDirection.x * this.movementSpeed * delta * this.sprintMult(isSprint)) 
+
+        { /* Translate camera along global Y axis */
+            var verticalTranslation = movementDirection.y * this.movementSpeed * delta * this.sprintMult(isSprint)
+            var verticalAxis = new Vector3(0,1,0)
+            this.object.translateOnAxis(verticalAxis, verticalTranslation)
+        }
 
     }
 
-   function sprintMult(isSprint, sprintMultiplier){
+    this.sprintMult = function (isSprint){
         if (isSprint){
-            return parseFloat(sprintMultiplier)
+            return this.sprintMultiplier
         } 
         else {
             return 1
         }
     }
+
+    /* Allows the callbacks for the event listeners access to "this" refering to instance of void */
+    /* Without binding, callbacks cannot access properties of "this" */
+    function bind(scope, fnc){
+        return function () {
+            fnc.apply(scope, arguments)
+        }
+    }
+
+    var _onMouseMove = bind(this, this.onMouseMove)
+    var _onMouseDown = bind(this, this.onMouseDown)
+    var _onMouseUp = bind(this, this.onMouseUp)
+    var _onKeyDown = bind(this, this.onKeyDown)
+    var _onKeyUp = bind(this, this.onKeyUp)
 
     this.domElement.addEventListener('contextmenu', contextmenu)
     this.domElement.addEventListener('mousemove', _onMouseMove)
@@ -159,31 +221,12 @@ var FlightControls = function (object, domElement) {
     window.addEventListener('keydown', _onKeyDown)
     window.addEventListener('keyup', _onKeyUp)
 
-    
 }
+
+
 
 module.exports = FlightControls
 
 
-    /*function bind(scope, fn) {
-        return function() {
-            fn.apply(scope, arguments)
-        }
-    }*/
-    /*
-    function setOrientation(controls){
-        var quaternion = controls.object.quaternion
-        lookDirection.set(0, 0, -1).applyQuaternion(quaternion)
-        lat = 90 - MathUtils.radToDeg(spherical.phi)
-        lon = MathUtils.radToDeg(spherical.theta)
-    }*/
-
-    //this.handleResize()
-    //setOrientation(this)
-
-    //var _onMouseMove = bind(this, this._onMouseMove)
-    //var _onMouseDown = bind(this, this._onMouseDown)
-    //var _onMouseUp = bind(this, this._onMouseUp)
-    //var _onKeyDown = bind(this, this._onKeyDown)
-    //var _onKeyUp = bind(this, this._onKeyUp)
+    
     
